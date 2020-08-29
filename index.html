@@ -4,7 +4,7 @@
 <meta charset="UTF-8">  
 <title>Insert title here</title>
  
-    <script type="text/javascript" src="src/qrcode/alignpat.js"></script>
+    <script type="text/javascript" src="src/qrcode/grid.js"></script>
     <script type="text/javascript" src="src/qrcode/version.js"></script>
     <script type="text/javascript" src="src/qrcode/detector.js"></script>
     <script type="text/javascript" src="src/qrcode/formatinf.js"></script>
@@ -24,12 +24,13 @@
  
 </head>  
 <body>  
-<video id="video"  autoplay=""style='width:100%;height:100%;border:1px solid black'></video>
-<canvas id="canvas" style='display:none' width="400" height="400"></canvas>
+<video id="video"  autoplay=""style='width:400px;height:400px;border:1px solid black'></video>
+<canvas id="canvas" style='display:none' width="500" height="500"></canvas>
  
 <div id='pic_box'></div>
-<div id='text_box'></div>
- 
+<div id='text_box' style="font-size: 50px;"></div>
+ <input type="file" id="upload">
+
 <script type="text/javascript">
  
     function writeObj(obj){
@@ -45,7 +46,34 @@
     var count = 0;
     var video = document.getElementById('video');
     var canvas = document.getElementById('canvas');
-    console.log("123453456");
+    // var mybarcode = document.getElementById('upload')
+    // mybarcode.addEventListener('change',function(e){
+    //     var file = e.target.files[0];
+    //     console.log(file);
+	// 		if(window.FileReader) {
+	// 			var fr = new FileReader();
+	// 			fr.readAsDataURL(file);
+	// 			fr.onloadend = function(e) {
+	// 				var base64Data = e.target.result;
+    //                 console.log(base64Data);
+    //                 qrcode.decode(base64Data);
+    //                 qrcode.callback = function(data){
+    //                     console.log('barcodecallback1');
+    //                     if(data == 'error decoding QR Code'){
+    //                         document.getElementById('text_box').innerText = '第' + count + '次:' + data;
+    //                         count ++;
+    //                         console.log('barcodecallback2');
+    //                     }else{   
+    //                         console.log('barcodecallback3');                        
+    //                         alert(data);
+    //                         document.getElementById('text_box').innerText = '第' + count + '次成功:' + data;
+    //                         //location.href = data;
+    //                     }
+    //                 }
+    //             }
+	// 		}
+    // })
+    
     navigator.mediaDevices.getUserMedia({
         video: true
     })
@@ -67,7 +95,8 @@
         alert(e);
         console.log(e);
     });
- 
+
+
     function checkCode(){
 
       var opts = {
@@ -81,18 +110,26 @@
           }
       }
 
-        let text = canvas.getContext('2d').drawImage(video, 0, 0, 400, 400);
-        console.log( canvas.getContext('2d').drawImage(video, 0, 0, 400, 400));
-        qrcode.decode(canvas.toDataURL(text,opts));
+        let ctx = canvas.getContext('2d');
+        // ctx.drawImage(video, 0, 0, 500, 500);
+       
+        qrcode.decode(canvas.toDataURL('image/png'));
+        console.log(canvas.toDataURL('image/png'));
 
         qrcode.callback = function(data){
-          console.log("qrcode.callback");
             if(data == 'error decoding QR Code'){
                 document.getElementById('text_box').innerText = '第' + count + '次:' + data;
                 count ++;
+                if(count>25){
+                    video.removeEventListener('timeupdate', checkCode);
+                    document.getElementById('text_box').innerText = '失败次数太多了，算了吧';
+                    video.pause();
+                }
             }else{
                 video.removeEventListener('timeupdate', checkCode);
+                video.pause();
                 alert(data);
+                document.getElementById('text_box').innerText = '第' + count + '次成功:' + data;
                 //location.href = data;
             }
         }
