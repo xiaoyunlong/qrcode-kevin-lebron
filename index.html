@@ -111,7 +111,7 @@
       }
 
         let ctx = canvas.getContext('2d');
-        // ctx.drawImage(video, 0, 0, 500, 500);
+        ctx.drawImage(video, 0, 0, 500, 500);
        
         qrcode.decode(canvas.toDataURL('image/png'));
         console.log(canvas.toDataURL('image/png'));
